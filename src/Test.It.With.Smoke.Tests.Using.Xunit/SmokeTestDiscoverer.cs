@@ -39,7 +39,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             {
                 SourceInformation = new SourceInformation
                 {
-                    LineNumber = testAttribute.GetNamedArgument<int>(nameof(SmokeTestAttribute.LineNumber))
+                    LineNumber = smokeTestAttribute.GetNamedArgument<int>(nameof(SmokeTestAttribute.LineNumber))
                 }
             };
 
