@@ -35,7 +35,14 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
                 return true;
             }
 
-            var testCase = new SmokeTestCase(index, defaultMethodDisplay, methodDisplayOptions, testMethod);
+            var testCase = new SmokeTestCase(index, defaultMethodDisplay, methodDisplayOptions, testMethod)
+            {
+                SourceInformation = new SourceInformation
+                {
+                    LineNumber = testAttribute.GetNamedArgument<int>(nameof(SmokeTestAttribute.LineNumber))
+                }
+            };
+
             return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
         }
 

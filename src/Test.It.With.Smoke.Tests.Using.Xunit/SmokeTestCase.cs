@@ -23,7 +23,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
         {
             base.Initialize();
 
-            DisplayName = $"{_index}. {TestMethod.TestClass.Class.Name.Replace('_', ' ')}, {TestMethod.Method.Name.Replace('_', ' ')}";
+            DisplayName = $"{TestMethod.Method.Name.Replace('_', ' ')}";
         }
 
         public Task<RunSummary> RunAsync(SmokeTestSpecification specification,

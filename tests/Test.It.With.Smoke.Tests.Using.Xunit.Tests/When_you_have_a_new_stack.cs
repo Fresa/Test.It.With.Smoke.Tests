@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using FluentAssertions;
 using Test.It.With.Smoke.Tests.Using.Xunit;
 using Xunit;
 
@@ -56,31 +57,39 @@ using Xunit;
 
 namespace Test.It.With.Smoke.Tests.Using.Xunit.Tests
 {
-    public class When_you_have_a_new_stack : SmokeTestSpecification
+    public partial class Given_a_new_stack
     {
-        Stack<string> _stack;
-
-        protected override void Given()
+        public class When_adding_an_item : SmokeTestSpecification
         {
-            _stack = new Stack<string>();
-        }
+            Stack<string> _stack;
 
-        [SmokeTest]
-        public void It_should_be_empty()
-        {
-            Assert.True(_stack.Count == 0);
-        }
+            protected override void Given()
+            {
+                _stack = new Stack<string>();
+            }
 
-        [SmokeTest]
-        public void It_should_not_allow_you_to_call_Pop()
-        {
-            Assert.Throws<InvalidOperationException>(() => _stack.Pop());
-        }
+            protected override void When()
+            {
+                _stack.Push("item1");
+            }
 
-        [SmokeTest]
-        public void It_should_not_allow_you_to_call_Peek()
-        {
-            Assert.Throws<InvalidOperationException>(() => { string unused = _stack.Peek(); });
+            [SmokeTest]
+            public void It_should_have_one_item()
+            {
+                _stack.Count.Should().Be(1);
+            }
+
+            [SmokeTest]
+            public void It_should_be_possible_to_pop()
+            {
+                _stack.Pop().Should().Be("item1");
+            }
+
+            [SmokeTest]
+            public void It_should_have_no_more_items()
+            {
+                _stack.Should().BeEmpty();
+            }
         }
     }
 }
