@@ -63,42 +63,21 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
 
     //}
 
-    /// <summary>
-    /// Used to decorate an assembly to allow the use of a custom <see cref="T:Xunit.Sdk.ITestFramework" />.
-    /// </summary>
-    [TestFrameworkDiscoverer("Xunit.Sdk.TestFrameworkTypeDiscoverer", "xunit.execution.desktop")]
+    [TestFrameworkDiscoverer("Test.It.With.Smoke.Tests.Using.Xunit.SmokeTestFrameworkAttribute", "Test.It.With.Smoke.Tests.Using.Xunit")]
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-    public sealed class CustomTestFrameworkAttribute : Attribute, ITestFrameworkAttribute
+    public sealed class SmokeTestFrameworkAttribute : Attribute, ITestFrameworkAttribute, ITestFrameworkTypeDiscoverer
     {
-        /// <summary>
-        /// Initializes an instance of <see cref="T:Xunit.TestFrameworkAttribute" />.
-        /// </summary>
-        /// <param name="typeName">The fully qualified type name of the test framework
-        /// (f.e., 'Xunit.Sdk.XunitTestFramework')</param>
-        /// <param name="assemblyName">The name of the assembly that the test framework type
-        /// is located in, without file extension (f.e., 'xunit.execution')</param>
-        public CustomTestFrameworkAttribute(string typeName, string assemblyName)
+        public Type GetTestFrameworkType(IAttributeInfo attribute)
         {
+            return typeof(SmokeTestFramework);
         }
     }
-
+    
     public class SmokeTestFramework : TestFramework
     {
-        public const string FullyQualifiedName = "Test.It.With.Smoke.Tests.Using.Xunit.SmokeTestFramework";
-        public const string AssemblyName = "Test.It.With.Smoke.Tests.Using.Xunit";
-
         public SmokeTestFramework(IMessageSink diagnosticMessageSink)
             : base(diagnosticMessageSink)
         {
-            //if (FullyQualifiedName != typeof(SmokeTestFramework).FullName)
-            //{
-            //    throw new InvalidOperationException($"Incorrect {nameof(FullyQualifiedName)}. Expected {typeof(SmokeTestFramework).FullName} found {FullyQualifiedName}.");
-            //}
-
-            //if (AssemblyName != typeof(SmokeTestFramework).Assembly.FullName)
-            //{
-            //    throw new InvalidOperationException($"Incorrect {nameof(AssemblyName)}. Expected {typeof(SmokeTestFramework).Assembly.FullName} found {AssemblyName}.");
-            //}
         }
 
         protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assemblyInfo)

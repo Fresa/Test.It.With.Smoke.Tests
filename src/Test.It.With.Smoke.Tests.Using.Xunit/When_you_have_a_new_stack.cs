@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Test.It.With.Smoke.Tests.Using.Xunit;
-//using Test.It.With.Smoke.Tests.Using.Xunit;
 using Xunit;
-//using XunitExtensions;
 
-[assembly: TestFramework("Test.It.With.Smoke.Tests.Using.Xunit.SmokeTestFramework", "Test.It.With.Smoke.Tests.Using.Xunit")]
+[assembly: SmokeTestFramework]
 
 public class When_you_have_a_new_stack : SmokeTestSpecification
 {
