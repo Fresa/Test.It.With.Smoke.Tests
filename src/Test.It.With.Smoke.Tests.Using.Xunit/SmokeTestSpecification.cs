@@ -1,10 +1,12 @@
-﻿namespace Test.It.With.Smoke.Tests.Using.Xunit
+﻿using Test.It.Specifications;
+
+namespace Test.It.With.Smoke.Tests.Using.Xunit
 {
-    public abstract class SmokeTestSpecification //: Specification
+    public abstract class SmokeTestSpecification : Specification
     {
         internal void OnSetup()
         {
-            //Setup();
+            Setup();
         }
     }
 }
