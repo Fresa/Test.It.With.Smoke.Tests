@@ -24,7 +24,9 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             var testAssembly = new TestAssembly(AssemblyInfo);
 
             using (var assemblyRunner = new SmokeTestAssemblyRunner(testAssembly, testCases, DiagnosticMessageSink, executionMessageSink, executionOptions))
+            {
                 await assemblyRunner.RunAsync();
+            }
         }
     }
 }

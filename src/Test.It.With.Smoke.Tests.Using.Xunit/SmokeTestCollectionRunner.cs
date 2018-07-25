@@ -10,7 +10,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
 {
     public class SmokeTestCollectionRunner : TestCollectionRunner<SmokeTestCase>
     {
-        readonly IMessageSink diagnosticMessageSink;
+        private readonly IMessageSink _diagnosticMessageSink;
 
         public SmokeTestCollectionRunner(ITestCollection testCollection,
             IEnumerable<SmokeTestCase> testCases,
@@ -21,7 +21,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             CancellationTokenSource cancellationTokenSource)
             : base(testCollection, testCases, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
         {
-            this.diagnosticMessageSink = diagnosticMessageSink;
+            _diagnosticMessageSink = diagnosticMessageSink;
         }
 
         protected override async Task<RunSummary> RunTestClassAsync(ITestClass testClass,
@@ -34,35 +34,43 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             Aggregator.Run(() => testClassInstance = Activator.CreateInstance(testClass.Class.ToRuntimeType()));
 
             if (Aggregator.HasExceptions)
-                return FailEntireClass(testCases, timer);
-
-            var specification = testClassInstance as SmokeTestSpecification;
-            if (specification == null)
             {
-                Aggregator.Add(new InvalidOperationException(String.Format("Test class {0} cannot be static, and must derive from Specification.", testClass.Class.Name)));
+                return FailEntireClass(testCases, timer);
+            }
+
+            if (!(testClassInstance is SmokeTestSpecification specification))
+            {
+                Aggregator.Add(new InvalidOperationException(
+                    $"Test class {testClass.Class.Name} cannot be static, and must derive from Specification."));
                 return FailEntireClass(testCases, timer);
             }
 
             Aggregator.Run(specification.OnSetup);
             if (Aggregator.HasExceptions)
+            {
                 return FailEntireClass(testCases, timer);
+            }
 
-            var result = await new SmokeTestClassRunner(specification, testClass, @class, testCases, diagnosticMessageSink, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
+            var result = await new SmokeTestClassRunner(specification, testClass, @class, testCases, _diagnosticMessageSink, MessageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
 
             if (specification is IDisposable disposable)
+            {
                 timer.Aggregate(disposable.Dispose);
+            }
 
             return result;
         }
 
         private RunSummary FailEntireClass(IEnumerable<SmokeTestCase> testCases, ExecutionTimer timer)
         {
-            foreach (var testCase in testCases)
-            {
-                MessageBus.QueueMessage(new TestFailed(new SmokeTest(testCase, testCase.DisplayName), timer.Total,
-                    "Exception was thrown in class constructor", Aggregator.ToException()));
-            }
-            int count = testCases.Count();
+            var count = testCases
+                .Select(testCase =>
+                    MessageBus.QueueMessage(new TestFailed(
+                        new SmokeTest(testCase, testCase.DisplayName),
+                        timer.Total,
+                        "Exception was thrown in class constructor", Aggregator.ToException())))
+                .Count();
+
             return new RunSummary { Failed = count, Total = count };
         }
     }

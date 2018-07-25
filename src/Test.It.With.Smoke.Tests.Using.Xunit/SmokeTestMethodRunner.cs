@@ -8,7 +8,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
 {
     public class SmokeTestMethodRunner : TestMethodRunner<SmokeTestCase>
     {
-        readonly SmokeTestSpecification specification;
+        private readonly SmokeTestSpecification _specification;
 
         public SmokeTestMethodRunner(SmokeTestSpecification specification,
             ITestMethod testMethod,
@@ -20,12 +20,12 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             CancellationTokenSource cancellationTokenSource)
             : base(testMethod, @class, method, testCases, messageBus, aggregator, cancellationTokenSource)
         {
-            this.specification = specification;
+            _specification = specification;
         }
 
         protected override Task<RunSummary> RunTestCaseAsync(SmokeTestCase testCase)
         {
-            return testCase.RunAsync(specification, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource);
+            return testCase.RunAsync(_specification, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource);
         }
     }
 }

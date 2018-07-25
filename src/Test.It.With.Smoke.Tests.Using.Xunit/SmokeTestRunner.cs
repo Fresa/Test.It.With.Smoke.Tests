@@ -9,8 +9,8 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
 {
     public class SmokeTestRunner : TestRunner<SmokeTestCase>
     {
-        readonly SmokeTestSpecification specification;
-        readonly ExecutionTimer timer;
+        private readonly SmokeTestSpecification _specification;
+        private readonly ExecutionTimer _timer;
 
         public SmokeTestRunner(SmokeTestSpecification specification,
             ITest test,
@@ -22,14 +22,14 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             CancellationTokenSource cancellationTokenSource)
             : base(test, messageBus, testClass, null, testMethod, null, null, aggregator, cancellationTokenSource)
         {
-            this.specification = specification;
-            this.timer = timer;
+            _specification = specification;
+            _timer = timer;
         }
 
         protected override async Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator)
         {
-            var duration = await new SmokeTestInvoker(specification, Test, MessageBus, TestClass, TestMethod, aggregator, CancellationTokenSource).RunAsync();
-            return Tuple.Create(duration, String.Empty);
+            var duration = await new SmokeTestInvoker(_specification, Test, MessageBus, TestClass, TestMethod, aggregator, CancellationTokenSource).RunAsync();
+            return Tuple.Create(duration, string.Empty);
         }
     }
 }

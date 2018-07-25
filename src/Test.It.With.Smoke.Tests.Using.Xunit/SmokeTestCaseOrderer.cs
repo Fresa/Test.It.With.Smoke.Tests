@@ -9,7 +9,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
     {
         public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
         {
-            return testCases.OrderBy(@case => @case.SourceInformation.LineNumber);
+            return testCases.OrderBy(testCase => testCase.SourceInformation.LineNumber);
         }
     }
 }
