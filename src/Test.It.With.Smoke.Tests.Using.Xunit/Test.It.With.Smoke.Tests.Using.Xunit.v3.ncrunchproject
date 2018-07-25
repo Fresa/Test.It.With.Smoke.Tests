@@ -1,0 +1,6 @@
+﻿<ProjectConfiguration>
+  <Settings>
+    <IgnoreThisComponentCompletely>False</IgnoreThisComponentCompletely>
+    <XUnit2Enabled>False</XUnit2Enabled>
+  </Settings>
+</ProjectConfiguration>
