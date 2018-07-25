@@ -23,7 +23,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             return new TestClass(_testCollectionFactory.Get(@class), @class);
         }
 
-        private bool FindTestsForMethod(int index, ITestMethod testMethod,
+        private bool FindTestsForMethod(ITestMethod testMethod,
             TestMethodDisplay defaultMethodDisplay,
             TestMethodDisplayOptions methodDisplayOptions,
             bool includeSourceInformation,
@@ -35,7 +35,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
                 return true;
             }
 
-            var testCase = new SmokeTestCase(index, defaultMethodDisplay, methodDisplayOptions, testMethod)
+            var testCase = new SmokeTestCase(defaultMethodDisplay, methodDisplayOptions, testMethod)
             {
                 SourceInformation = new SourceInformation
                 {
@@ -56,8 +56,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             return testClass
                 .Class
                 .GetMethods(includePrivateMethods: false)
-                .Select((value, index) => new { Value = value, Index = index })
-                .All(method => FindTestsForMethod(method.Index, new TestMethod(testClass, method.Value), methodDisplay, methodDisplayOptions, includeSourceInformation, messageBus));
+                .All(method => FindTestsForMethod(new TestMethod(testClass, method), methodDisplay, methodDisplayOptions, includeSourceInformation, messageBus));
         }
     }
 }

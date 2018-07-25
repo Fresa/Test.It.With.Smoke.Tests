@@ -8,15 +8,12 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
 {
     public class SmokeTestCase : TestMethodTestCase
     {
-        private readonly int _index;
-
         [Obsolete("For de-serialization purposes only", error: true)]
         public SmokeTestCase() { }
 
-        public SmokeTestCase(int index, TestMethodDisplay defaultMethodDisplay, TestMethodDisplayOptions testMethodDisplayOptions, ITestMethod testMethod)
+        public SmokeTestCase(TestMethodDisplay defaultMethodDisplay, TestMethodDisplayOptions testMethodDisplayOptions, ITestMethod testMethod)
             : base(defaultMethodDisplay, testMethodDisplayOptions, testMethod)
         {
-            _index = index;
         }
 
         protected override void Initialize()
