@@ -24,14 +24,14 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
         TTo Next(TFrom from);
     }
 
-    public interface IStart<T> where T : SmokeTestSpecification
+    public interface IStart2<T> where T : SmokeTestSpecification
     {
         T Start();
     }
 
     public interface IProcess
     {
-        IStart<T> Start<T>() where T : SmokeTestSpecification;
+        IStart2<T> Start<T>() where T : SmokeTestSpecification;
     }
 
     public interface INext2<TFrom>
@@ -113,16 +113,37 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
     }
 
 
-    public interface IFirst<T>
+    public interface IBegin<T>
         where T : SmokeTestSpecification
     {
 
     }
 
-    public interface IAnd<T>
+    public interface IContinue<T>
         where T : SmokeTestSpecification
     {
 
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public sealed class BeginAttribute : Attribute
+    {
+        public Type TestClass { get; }
+
+        public BeginAttribute(Type testClass)
+        {
+            TestClass = testClass;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public sealed class ContinueAttribute : Attribute
+    {
+        public Type TestClass { get; }
+
+        public ContinueAttribute(Type testClass)
+        {
+            TestClass = testClass;
+        }
+    }
 }

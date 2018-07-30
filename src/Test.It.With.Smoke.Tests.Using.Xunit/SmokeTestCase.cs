@@ -30,5 +30,17 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
         {
             return new SmokeTestCaseRunner(specification, this, DisplayName, messageBus, aggregator, cancellationTokenSource).RunAsync();
         }
+
+        public override void Serialize(IXunitSerializationInfo data)
+        {
+            base.Serialize(data);
+            data.AddValue(nameof(SourceInformation), SourceInformation);
+        }
+
+        public override void Deserialize(IXunitSerializationInfo data)
+        {
+            base.Deserialize(data);
+            SourceInformation = data.GetValue<ISourceInformation>(nameof(SourceInformation));
+        }
     }
 }
