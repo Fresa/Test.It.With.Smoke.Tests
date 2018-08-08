@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System.Threading.Tasks;
+using NUnit.Framework;
+using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
 
 namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 {
@@ -8,15 +11,15 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         private int i = 0;
 
         [SmokeTest]
-        public void Hej()
+        public void Hej_test()
         {
-            i++; 
+            i++;
             Assert.AreEqual(1, i);
         }
-         
+
         [SmokeTest]
         public void B()
-        { 
+        {
             i++;
             Assert.AreEqual(2, i);
         }
@@ -31,6 +34,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         [SmokeTest]
         public void F()
         {
+
             i++;
             Assert.AreEqual(4, i);
         }
@@ -47,6 +51,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         {
             i++;
             Assert.AreEqual(6, i);
+            Assert.True(false);
         }
 
         [SmokeTest]
@@ -84,5 +89,4 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
             Assert.AreEqual(11, i);
         }
     }
-
 }
