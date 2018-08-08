@@ -1,74 +1,16 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Linq;
-using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Test.It.With.Smoke.Tests.Using.Xunit
 {
-    //public class SmokeTestDiscoverer2 : TestFrameworkDiscoverer
-    //{
-    //    private readonly CollectionPerClassTestCollectionFactory _testCollectionFactory;
-
-    //    public SmokeTestDiscoverer2(IAssemblyInfo assemblyInfo,
-    //                                 ISourceInformationProvider sourceProvider,
-    //                                 IMessageSink diagnosticMessageSink)
-    //        : base(assemblyInfo, sourceProvider, diagnosticMessageSink)
-    //    {
-    //        var testAssembly = new TestAssembly(assemblyInfo);
-    //        // todo: might wanna collect and group test classes in another way when chaining test classes
-    //        _testCollectionFactory = new CollectionPerClassTestCollectionFactory(testAssembly, diagnosticMessageSink);
-    //    }
-
-    //    protected override ITestClass CreateTestClass(ITypeInfo @class)
-    //    {
-    //        return new TestClass(_testCollectionFactory.Get(@class), @class);
-    //    }
-
-    //    private bool FindTestsForMethod(ITestMethod testMethod,
-    //        TestMethodDisplay defaultMethodDisplay,
-    //        TestMethodDisplayOptions methodDisplayOptions,
-    //        bool includeSourceInformation,
-    //        IMessageBus messageBus)
-    //    {
-    //        var smokeTestAttribute = testMethod.Method.GetCustomAttributes(typeof(SmokeTestAttribute)).FirstOrDefault();
-    //        if (smokeTestAttribute == null)
-    //        {
-    //            return true;
-    //        }
-
-    //        var testCase = new SmokeTestCase(defaultMethodDisplay, methodDisplayOptions, testMethod)
-    //        {
-    //            SourceInformation = new SourceInformation
-    //            {
-    //                LineNumber = smokeTestAttribute.GetNamedArgument<int>(nameof(SmokeTestAttribute.LineNumber))
-    //            }
-    //        };
-
-    //        return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
-    //    }
-
-    //    protected override bool FindTestsForType(ITestClass testClass,
-    //                                             bool includeSourceInformation,
-    //                                             IMessageBus messageBus,
-    //                                             ITestFrameworkDiscoveryOptions discoveryOptions)
-    //    {
-    //        var methodDisplay = discoveryOptions.MethodDisplayOrDefault();
-    //        var methodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
-    //        return testClass
-    //            .Class
-    //            .GetMethods(includePrivateMethods: false)
-    //            .All(method => FindTestsForMethod(new TestMethod(testClass, method), methodDisplay, methodDisplayOptions, includeSourceInformation, messageBus));
-    //    }
-    //}
-
-    public class SmokeTestDiscoverer : TestFrameworkDiscoverer
+    public class SmokeTestFrameworkDiscoverer : TestFrameworkDiscoverer
     {
         private readonly CollectionPerClassTestCollectionFactory _testCollectionFactory;
 
-        public SmokeTestDiscoverer(IAssemblyInfo assemblyInfo,
+        public SmokeTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo,
                                      ISourceInformationProvider sourceProvider,
                                      IMessageSink diagnosticMessageSink)
             : base(assemblyInfo, sourceProvider, diagnosticMessageSink)
@@ -88,7 +30,9 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             return type.GetCustomAttributes(typeof(BeginAttribute)).Any();
         }
 
-        private bool FindTestsForMethod(ITestMethod testMethod,
+        private bool FindTestsForMethod(
+            ITestClass subClass,
+            ITestMethod testMethod,
             TestMethodDisplay defaultMethodDisplay,
             TestMethodDisplayOptions methodDisplayOptions,
             bool includeSourceInformation,
@@ -100,7 +44,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
                 return true;
             }
 
-            var testCase = new SmokeTestCase(defaultMethodDisplay, methodDisplayOptions, testMethod)
+            var testCase = new SmokeTestCase(subClass, DiagnosticMessageSink, defaultMethodDisplay, methodDisplayOptions, testMethod)
             {
                 SourceInformation = new SourceInformation
                 {
@@ -145,7 +89,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
             var methodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
             return subClass
                 .GetMethods(includePrivateMethods: false)
-                .All(method => FindTestsForMethod(new TestMethod(new TestClass(testClass.TestCollection, subClass), method), methodDisplay, methodDisplayOptions, includeSourceInformation, messageBus));
+                .All(method => FindTestsForMethod(testClass, new TestMethod(new TestClass(testClass.TestCollection, subClass), method), methodDisplay, methodDisplayOptions, includeSourceInformation, messageBus));
         }
     }
 
@@ -153,7 +97,47 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
     {
         public static ITypeInfo ToTypeInfo(this Type type)
         {
-            return new ReflectionTypeInfo(type);
+            return new TestTypeInfo(new ReflectionTypeInfo(type));
         }
+    }
+
+    internal class TestTypeInfo : ITypeInfo
+    {
+        private readonly ReflectionTypeInfo _typeInfo;
+
+        public TestTypeInfo(ReflectionTypeInfo typeInfo)
+        {
+            _typeInfo = typeInfo;
+        }
+
+        public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+        {
+            return _typeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName);
+        }
+
+        public IEnumerable<ITypeInfo> GetGenericArguments()
+        {
+            return _typeInfo.GetGenericArguments();
+        }
+
+        public IMethodInfo GetMethod(string methodName, bool includePrivateMethod)
+        {
+            return _typeInfo.GetMethod(methodName, includePrivateMethod);
+        }
+
+        public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
+        {
+            return _typeInfo.GetMethods(includePrivateMethods);
+        }
+
+        public IAssemblyInfo Assembly => _typeInfo.Assembly;
+        public ITypeInfo BaseType => _typeInfo.BaseType;
+        public IEnumerable<ITypeInfo> Interfaces => _typeInfo.Interfaces;
+        public bool IsAbstract => _typeInfo.IsAbstract;
+        public bool IsGenericParameter => _typeInfo.IsGenericParameter;
+        public bool IsGenericType => _typeInfo.IsGenericType;
+        public bool IsSealed => _typeInfo.IsSealed;
+        public bool IsValueType => _typeInfo.IsValueType;
+        public string Name => _typeInfo.Name;
     }
 }

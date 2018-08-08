@@ -13,7 +13,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
 
         protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assemblyInfo)
         {
-            return new SmokeTestDiscoverer(assemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
+            return new SmokeTestFrameworkDiscoverer(assemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
         }
 
         protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName)

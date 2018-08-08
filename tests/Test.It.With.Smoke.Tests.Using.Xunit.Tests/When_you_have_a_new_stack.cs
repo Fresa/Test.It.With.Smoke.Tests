@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using FluentAssertions;
 using Test.It.With.Smoke.Tests.Using.Xunit;
+using Xunit;
+using Xunit.Sdk;
 
 [assembly: SmokeTestFramework]
 
@@ -9,17 +12,37 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit.Tests
 {
     // Retrieve forwarding data from properties (what ever access modifier) 
     // Forward data through constructor. Match parameter name and type with argument name and type
+    //[CollectionDefinition("My Fixture")]
+    //public class TestCollectionFixture : ICollectionFixture<Testar> { }
+
+    //    public class Testar { }
 
     [Begin(typeof(Given_a_new_stack.When_adding_an_item))]
     [Continue(typeof(By_having_an_existing_stack.When_adding_an_item_again))]
-    public class First_When_adding_an_item_and_adding_it_again
+    public class When_adding_an_item_and_adding_it_again
     {
     }
 
+    [Trait("Category", "TraitValue")]
+    [Begin(typeof(By_having_an_existing_stack.Just_testing))]
+    public class Test {
+
+    }
+
+    ////[CollectionDefinition("My Fixture")]
+    //[Trait("Category", "TraitValue")]
+    //public class When_testing 
+    //{
+    //    [Trait("Category", "Testar")]
+    //    [Fact]
+    //    public void Hej()
+    //    {
+
+    //    }
+    //}
 
     public partial class Given_a_new_stack
     {
-        
         public class When_adding_an_item_and_adding_it_again_with_process3 : Process3
         {
             public When_adding_an_item_and_adding_it_again_with_process3()
@@ -137,6 +160,29 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit.Tests
             public void It_should_have_no_more_items()
             {
                 _stack.Should().BeEmpty();
+            }
+        }
+
+//        [Trait("Category", "TraitValue")]
+        public class Just_testing : SmokeTestSpecification
+        {
+            Stack<string> _stack;
+
+            public Just_testing()
+            {
+                _stack = new Stack<string>();
+            }
+            
+            protected override void When()
+            {
+                _stack.Push("item1");
+            }
+
+//            [Trait("Category", "TraitValue")]
+            [SmokeTest]
+            public void It_should_count_something()
+            {
+                _stack.Count.Should().Be(1);
             }
         }
     }

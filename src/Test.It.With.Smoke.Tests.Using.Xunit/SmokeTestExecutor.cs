@@ -14,7 +14,7 @@ namespace Test.It.With.Smoke.Tests.Using.Xunit
 
         protected override ITestFrameworkDiscoverer CreateDiscoverer()
         {
-            return new SmokeTestDiscoverer(AssemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
+            return new SmokeTestFrameworkDiscoverer(AssemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
         }
 
         protected override async void RunTestCases(IEnumerable<SmokeTestCase> testCases,
