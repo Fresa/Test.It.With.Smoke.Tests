@@ -10,13 +10,10 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
 {
     public class SmokeTestAttribute : NUnitAttribute, ISimpleTestBuilder, IApplyToTest, IImplyFixture
     {
-        private readonly string _filePath;
         private readonly int _lineNumber;
 
-        public SmokeTestAttribute([CallerFilePath] string filePath = "",
-            [CallerLineNumber] int lineNumber = 0)
+        public SmokeTestAttribute([CallerLineNumber] int lineNumber = 0)
         {
-            _filePath = filePath;
             _lineNumber = lineNumber;
         }
 
