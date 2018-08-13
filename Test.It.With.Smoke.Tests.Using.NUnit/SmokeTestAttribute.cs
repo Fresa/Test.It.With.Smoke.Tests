@@ -11,7 +11,7 @@ using NUnit.Framework.Internal.Commands;
 
 namespace Test.It.With.Smoke.Tests.Using.NUnit
 {
-    public class SmokeTestAttribute : NUnitAttribute, ISimpleTestBuilder, IApplyToTest, IImplyFixture, IApplyToContext, IWrapTestMethod
+    public class SmokeTestAttribute : NUnitAttribute, ISimpleTestBuilder, IApplyToTest, IApplyToContext, IWrapTestMethod
     {
         private readonly int _lineNumber;
 
