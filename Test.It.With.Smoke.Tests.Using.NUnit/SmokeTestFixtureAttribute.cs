@@ -11,48 +11,39 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
 {
     public class SmokeTestFixtureAttribute : NUnitAttribute, IFixtureBuilder
     {
-        public Type Next { get; set; }
+        public Type NextFixture { get; set; }
 
         private readonly NUnitTestFixtureBuilder _builder = new NUnitTestFixtureBuilder();
         public IEnumerable<TestSuite> BuildFrom(ITypeInfo typeInfo)
         {
-            var a = _builder.BuildFrom(typeInfo);
-            yield return a;
+            var fixture = _builder.BuildFrom(typeInfo);
+            yield return fixture;
 
-            if (Next != null)
+            if (NextFixture != null)
             {
-                var nextTypeInfo = new TypeWrapper(Next);
-                //var b = _builder.BuildFrom(nextTypeInfo);
-                var b = new TestFixture(nextTypeInfo, new []{ (object)1});
+                var nextTypeInfo = new TypeWrapper(NextFixture);
+                var nextFixture = new TestFixture(nextTypeInfo, new []{ (object)1});
 
-                b.ApplyAttributesToTest(nextTypeInfo.Type.GetTypeInfo());
-                AddTestCasesToFixture(b);
-                yield return b;
+                nextFixture.ApplyAttributesToTest(nextTypeInfo.Type.GetTypeInfo());
+                AddTestCasesToFixture(nextFixture);
+                yield return nextFixture;
             }
         }
 
-        private void AddTestCasesToFixture(TestFixture fixture)
+        private readonly ITestCaseBuilder _testBuilder = new DefaultTestCaseBuilder();
+        private void AddTestCasesToFixture(TestSuite fixture)
         {
-            
             var methods = fixture.TypeInfo.GetMethods(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 
-            foreach (IMethodInfo method in methods)
+            var tests = methods
+                .Where(method => _testBuilder.CanBuildFrom(method, fixture))
+                .Select(method => _testBuilder.BuildFrom(method, fixture));
+
+            foreach (var test in tests)
             {
-                global::NUnit.Framework.Internal.Test test = BuildTestCase(method, fixture);
-
-                if (test != null)
-                    fixture.Add(test);
+                fixture.Add(test);
             }
-        }
-
-
-        private ITestCaseBuilder _testBuilder = new DefaultTestCaseBuilder();
-        private global::NUnit.Framework.Internal.Test BuildTestCase(IMethodInfo method, TestSuite suite)
-        {
-            return _testBuilder.CanBuildFrom(method, suite)
-                ? _testBuilder.BuildFrom(method, suite)
-                : null;
         }
     }
 }

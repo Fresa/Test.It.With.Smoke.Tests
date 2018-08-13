@@ -5,7 +5,7 @@ using NUnit.Framework.Internal;
 
 namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 {
-    [SmokeTestFixture(Next = typeof(MyFixtureGeneratedTests2))]
+    [SmokeTestFixture(NextFixture = typeof(MyFixtureGeneratedTests2))]
     public class MyFixtureGeneratedTests
     {
         private int i = 0;
@@ -51,7 +51,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         {
             i++;
             Assert.AreEqual(6, i);
-           // Assert.True(false);
+           Assert.True(false);
         }
 
         [SmokeTest]
