@@ -1,14 +1,27 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 
 namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 {
-    [SmokeTestFixture(NextFixture = typeof(MyFixtureGeneratedTests2))]
+    public class MyProcessBuildingAttribute : ProcessBuildingAttribute
+    {
+        public MyProcessBuildingAttribute()
+        {
+            Iterator = new ProcessChain<MyFixtureGeneratedTests>()
+                .Start(() => new MyFixtureGeneratedTests())
+                .Next(tests => new MyFixtureGeneratedTests2(tests.i))
+                .Build();
+        }
+    }
+
+    [MyProcessBuilding]
+    [SmokeTestFixture(/*NextFixture = typeof(MyFixtureGeneratedTests2)*/)]
     public class MyFixtureGeneratedTests
     {
-        private int i = 0;
+        public int i = 0;
 
         [SmokeTest]
         public void Hej_test()
@@ -51,7 +64,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         {
             i++;
             Assert.AreEqual(6, i);
-           Assert.True(false);
+            //Assert.True(false);
         }
 
         [SmokeTest]
@@ -92,7 +105,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 
     public class MyFixtureGeneratedTests2
     {
-        private readonly int _i;
+        private int _i;
 
         public MyFixtureGeneratedTests2(int i)
         {
@@ -102,7 +115,8 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         [SmokeTest]
         public void H()
         {
-
+            _i++;
+            Assert.AreEqual(12, _i);
         }
     }
 }
