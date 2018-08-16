@@ -17,7 +17,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
 
     public class SmokeTestFixtureAttribute : NUnitAttribute, IFixtureBuilder
     {
-      //  public Type NextFixture { get; set; }
+        //  public Type NextFixture { get; set; }
 
         private readonly NUnitTestFixtureBuilder _builder = new NUnitTestFixtureBuilder();
         public IEnumerable<TestSuite> BuildFrom(ITypeInfo typeInfo)
@@ -35,7 +35,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
 
                 }
                 yield break;
-                
+
             }
 
 
@@ -69,79 +69,28 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
             }
         }
 
-        public static Queue<object> _instances = new Queue<object>();
+        //public static Queue<object> _instances = new Queue<object>();
 
 
         public IEnumerable<TestFixture> TestSource(ITestProcessIterator _process)
         {
-            //var scenario = 0;
-            //var _instances = new Queue<object>();
-            TestFixture previous = null;
-            while (_process.Next(_instances.Dequeue))
+            MyTestSuite previous = null;
+            while (_process.Next())
             {
                 var type = _process.Current.Type;
                 var argumentResolver = _process.Current.ParameterResolver;
 
-                // todo: behöver koppla ihop argumentResolver (som löser argument genom expressions) med previous.ArgumentProvider (argumentet till expressionet som ska lösas och som kommer returnera det argument som fixturen ska ha)
-
                 var nextTypeInfo = new TypeWrapper(type);
-                previous = new MyTestSuite(nextTypeInfo, previous);
+                previous = new MyTestSuite(nextTypeInfo, previous, argumentResolver);
+
                 yield return previous;
-                //var instanceFactory = new Lazy<object>(() =>
-                //{
-                //    var instance = Activator.CreateInstance(type, argumentResolver());
-                //    _instances.Enqueue(instance);
-                //    return instance;
-                //});
-
-                //while (methods.Any())
-                //{
-                //    testContexts.Add(new TestContext(() => instanceFactory.Value, ref methods));
-                //}
-
-                //var cleanupManager = new CleanupManager(new ExceptionHandler());
-                //var testContextParserFactory = new TestContextParserFactory(cleanupManager);
-                //var testCaseBuilder = new TestCaseBuilder(testContexts, testContextParserFactory);
-
-                //var testRunner = new TestRunner(testCaseBuilder.TestCount);
-                //testRunner.OnComplete(cleanupManager.Cleanup);
-                //testRunner.OnFailure(info =>
-                //{
-                //    _testRunners.ForEach(runner => runner.StopProcessing());
-                //    cleanupManager.Cleanup(info);
-                //});
-                //_testRunners.Add(testRunner);
-
-                //var testCases = testCaseBuilder.BuildTests(testRunner);
-
-                //++scenario;
-                //foreach (var testCase in testCases)
-                //{
-                //    testCase.SetName(string.Format("{0}. {1} - {2}", scenario, type.Name, testCase.TestName));
-                //    yield return testCase;
-                //}
             }
         }
-
-        //private static bool AttributeIs<T>(MethodInfo method) where T : Attribute
-        //{
-        //    return method.GetCustomAttributes<T>().Any();
-        //}
-
-        //private static int GetLineNumber(MemberInfo info)
-        //{
-        //    return info.GetCustomAttribute<OrderedAttribute>().LineNumber;
-        //}
-
-        //private static int LineNumber(Method method)
-        //{
-        //    return method.LineNumber;
-        //}
     }
 
     public class ProcessChain<T>
     {
-        private readonly Queue<Func<Func<object[]>, Process>> _processes = new Queue<Func<Func<object[]>, Process>>();
+        private readonly Queue<Func<Process>> _processes = new Queue<Func<Process>>();
 
         public ProcessChain()
         {
@@ -161,7 +110,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
                 throw new NotSupportedException("Expected a constructor");
             }
 
-            _processes.Enqueue(parameterResolver => new Process(typeof(T), () => ConstructorParameterResolver(constructor)));
+            _processes.Enqueue(() => new Process(typeof(T), fixture => ConstructorParameterResolver(constructor)));
 
             return new ProcessChainStep<T>(_processes.Enqueue, Build);
         }
@@ -184,10 +133,10 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
 
     public class ProcessChainStep<TIn>
     {
-        private readonly Action<Func<Func<object[]>, Process>> _register;
+        private readonly Action<Func<Process>> _register;
         private readonly Func<ITestProcessIterator> _iteratorFactory;
 
-        public ProcessChainStep(Action<Func<Func<object[]>, Process>> register, Func<ITestProcessIterator> iteratorFactory)
+        public ProcessChainStep(Action<Func<Process>> register, Func<ITestProcessIterator> iteratorFactory)
         {
             _register = register;
             _iteratorFactory = iteratorFactory;
@@ -211,10 +160,9 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
                 throw new NotSupportedException("Expected a constructor");
             }
 
-            _register(parameterValuesResolver => new Process(
+            _register(() => new Process(
                 typeof(TOut),
-                () => ConstructorParameterResolver(constructor, expression.Parameters.ToArray(), parameterValuesResolver())
-            ));
+                fixture => ConstructorParameterResolver(constructor, expression.Parameters.ToArray(), new[] { fixture })));
 
             return new ProcessChainStep<TOut>(_register, _iteratorFactory);
         }
@@ -234,23 +182,20 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
 
     public class ChainedTestProcessIterator : ITestProcessIterator
     {
-        private readonly Queue<Func<Func<object[]>, Process>> _processes;
+        private readonly Queue<Func<Process>> _processes;
 
-        public ChainedTestProcessIterator(Queue<Func<Func<object[]>, Process>> processes)
+        public ChainedTestProcessIterator(Queue<Func<Process>> processes)
         {
             _processes = processes;
         }
 
         public Process Current { get; private set; }
 
-        public bool Next(Func<object> instance)
+        public bool Next()
         {
             if (_processes.Any())
             {
-                Current = _processes.Dequeue()(() => new[]
-                {
-                    instance()
-                });
+                Current = _processes.Dequeue()();
                 return Current != null;
             }
             return false;
@@ -260,24 +205,24 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
     public interface ITestProcessIterator
     {
         Process Current { get; }
-        bool Next(Func<object> instance);
+        bool Next();
     }
 
     public class Process
     {
         public Process(Type type)
-            : this(type, () => null)
+            : this(type, fixture => null)
         {
         }
 
-        public Process(Type type, Func<object[]> parameterResolver)
+        public Process(Type type, Func<object, object[]> parameterResolver)
         {
             Type = type;
             ParameterResolver = parameterResolver;
         }
 
-        public Type Type { get; private set; }
-        public Func<object[]> ParameterResolver { get; private set; }
+        public Type Type { get; }
+        public Func<object, object[]> ParameterResolver { get; }
     }
 
     public class Testar
@@ -315,27 +260,24 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
     public class MyTestSuite : TestFixture
     {
         private readonly TestFixture _previous;
-        internal Func<object[]> ArgumentProvider => GetArguments;
+        private readonly Func<object, object[]> _argumentProvider;
+        internal Func<object[]> ArgumentProvider => () => _argumentProvider(GetPreviousFixture());
 
-        public MyTestSuite(ITypeInfo fixtureType, TestFixture previous) : base(fixtureType)
+        public MyTestSuite(ITypeInfo fixtureType, TestFixture previous, Func<object, object[]> argumentProvider) : 
+            base(fixtureType)
         {
             _previous = previous;
+            _argumentProvider = argumentProvider;
         }
 
-        public MyTestSuite(ITypeInfo fixtureType, Func<object[]> argumentProvider) : base(fixtureType)
+        private object GetPreviousFixture()
         {
-            //ArgumentProvider = argumentProvider;
-        }
-
-        private object[] GetArguments()
-        {
-
             if (_previous != null && _previous.Properties.ContainsKey("arguments"))
             {
-                return new[] {_previous.Properties.Get("arguments")};
+                return _previous.Properties.Get("arguments");
             }
 
-            return new object[0];
+            return null;
         }
 
         public override object[] Arguments => ArgumentProvider.Invoke();
@@ -370,10 +312,10 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
                 throw new NotSupportedException("Expected a constructor");
             }
 
-          ////  _register.Enqueue(new MyTestSuite(new TypeWrapper(typeof(TOut)),
-                
-          //      arguments => constructor.ResolveConstructorParameters(expression.Parameters.Select((parameterExpression, i) => new Tuple<ParameterExpression, object>(parameterExpression, arguments[i])).ToArray())
-          //  ));
+            ////  _register.Enqueue(new MyTestSuite(new TypeWrapper(typeof(TOut)),
+
+            //      arguments => constructor.ResolveConstructorParameters(expression.Parameters.Select((parameterExpression, i) => new Tuple<ParameterExpression, object>(parameterExpression, arguments[i])).ToArray())
+            //  ));
 
             return new NextLinkBuilder<TOut>(_register);
         }

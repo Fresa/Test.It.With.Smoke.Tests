@@ -86,8 +86,8 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
                 finally
                 {
                     context.CurrentTest.Parent.Properties.Set("arguments", context.TestObject);
-                    if (SmokeTestFixtureAttribute._instances.Contains(context.TestObject) == false)
-                        SmokeTestFixtureAttribute._instances.Enqueue(context.TestObject);
+                    //if (SmokeTestFixtureAttribute._instances.Contains(context.TestObject) == false)
+                    //    SmokeTestFixtureAttribute._instances.Enqueue(context.TestObject);
                 }
             }
         }
