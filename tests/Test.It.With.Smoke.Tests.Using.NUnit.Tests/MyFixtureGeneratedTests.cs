@@ -6,19 +6,18 @@ using NUnit.Framework.Internal;
 
 namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 {
-    public class MyProcessBuildingAttribute : ProcessBuildingAttribute
+    public class MyProcessBuildingSpecificationAttribute : ChainedFixtureSpecificationAttribute
     {
-        public MyProcessBuildingAttribute()
+        public MyProcessBuildingSpecificationAttribute()
         {
-            Iterator = new ProcessChain<MyFixtureGeneratedTests>()
+            FixtureIterator = ChainedFixtures < MyFixtureGeneratedTests>
                 .Start(() => new MyFixtureGeneratedTests())
                 .Next(tests => new MyFixtureGeneratedTests2(tests.i))
                 .Build();
         }
     }
 
-    [MyProcessBuilding]
-    [SmokeTestFixture(/*NextFixture = typeof(MyFixtureGeneratedTests2)*/)]
+    [MyProcessBuildingSpecification]
     public class MyFixtureGeneratedTests
     {
         public int i = 0;

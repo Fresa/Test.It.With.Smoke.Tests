@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Test.It.With.Smoke.Tests.Using.NUnit\Test.It.With.Smoke.Tests.Using.NUnit.csproj" />
+    <ProjectReference Include="..\..\src\Test.It.With.Smoke.Tests.Using.NUnit\Test.It.With.Smoke.Tests.Using.NUnit.csproj" />
   </ItemGroup>
 
 </Project>

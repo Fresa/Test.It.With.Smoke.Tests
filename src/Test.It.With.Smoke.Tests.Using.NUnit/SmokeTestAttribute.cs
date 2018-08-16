@@ -60,6 +60,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
             {
             }
 
+            // todo: should be possible to set this through the fixture's properties, as we do with arguments
             private static readonly ConcurrentDictionary<Type, Type> FailedFixtures = new ConcurrentDictionary<Type, Type>();
 
             public override TestResult Execute(TestExecutionContext context)
@@ -85,9 +86,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
                 }
                 finally
                 {
-                    context.CurrentTest.Parent.Properties.Set("arguments", context.TestObject);
-                    //if (SmokeTestFixtureAttribute._instances.Contains(context.TestObject) == false)
-                    //    SmokeTestFixtureAttribute._instances.Enqueue(context.TestObject);
+                    context.CurrentTest.Parent.Properties.Set("fixture", context.TestObject);
                 }
             }
         }
