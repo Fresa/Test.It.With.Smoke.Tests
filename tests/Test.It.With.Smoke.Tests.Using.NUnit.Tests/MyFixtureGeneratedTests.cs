@@ -1,104 +1,103 @@
-﻿using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using NUnit.Framework.Interfaces;
-using NUnit.Framework.Internal;
+﻿using NUnit.Framework;
+using Test.It.With.Smoke.Tests.Using.NUnit.Configuration;
 
 namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 {
     public class MyProcessBuildingSpecificationAttribute : ChainedFixtureSpecificationAttribute
     {
-        public MyProcessBuildingSpecificationAttribute()
-        {
-            FixtureIterator = ChainedFixtures < MyFixtureGeneratedTests>
+        public override IBuildFixtures FixtureBuilder { get; } =
+            ChainedFixtures<MyFixtureGeneratedTests>
                 .Start(() => new MyFixtureGeneratedTests())
-                .Next(tests => new MyFixtureGeneratedTests2(tests.i))
-                .Build();
-        }
+                .Next(tests => new MyFixtureGeneratedTests2(tests.I));
     }
 
     [MyProcessBuildingSpecification]
     public class MyFixtureGeneratedTests
     {
-        public int i = 0;
+        public int I;
+
+        public MyFixtureGeneratedTests()
+        {
+            I = 0;
+        }
 
         [SmokeTest]
         public void Hej_test()
         {
-            i++;
-            Assert.AreEqual(1, i);
+            I++;
+            Assert.AreEqual(1, I);
         }
 
         [SmokeTest]
         public void B()
         {
-            i++;
-            Assert.AreEqual(2, i);
+            I++;
+            Assert.AreEqual(2, I);
         }
 
         [SmokeTest]
         public void A()
         {
-            i++;
-            Assert.AreEqual(3, i);
+            I++;
+            Assert.AreEqual(3, I);
         }
 
         [SmokeTest]
         public void F()
         {
 
-            i++;
-            Assert.AreEqual(4, i);
+            I++;
+            Assert.AreEqual(4, I);
         }
 
         [SmokeTest]
         public void H()
         {
-            i++;
-            Assert.AreEqual(5, i);
+            I++;
+            Assert.AreEqual(5, I);
         }
 
         [SmokeTest]
         public void K()
         {
-            i++;
-            Assert.AreEqual(6, i);
+            I++;
+            Assert.AreEqual(6, I);
             //Assert.True(false);
         }
 
         [SmokeTest]
         public void J()
         {
-            i++;
-            Assert.AreEqual(7, i);
+            I++;
+            Assert.AreEqual(7, I);
         }
 
         [SmokeTest]
-        public void I()
+        public void V()
         {
-            i++;
-            Assert.AreEqual(8, i);
+            I++;
+            Assert.AreEqual(8, I);
         }
 
         [SmokeTest]
         public void AA()
         {
-            i++;
-            Assert.AreEqual(9, i);
+            I++;
+            Assert.AreEqual(9, I);
         }
 
         [SmokeTest]
         public void AB()
         {
-            i++;
-            Assert.AreEqual(10, i);
+            I++;
+            Assert.AreEqual(10, I);
         }
 
         [SmokeTest]
         public void AC()
         {
-            i++;
-            Assert.AreEqual(11, i);
+            I++;
+            Assert.AreEqual(11, I);
         }
     }
 
