@@ -1,8 +1,10 @@
 ﻿using NUnit.Framework;
 using Test.It.With.Smoke.Tests.Using.NUnit.Configuration;
+using Test.It.With.Smoke.Tests.Using.NUnit.Tests;
 
 namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 {
+    [MyProcessBuildingSpecification]
     public class MyProcessBuildingSpecificationAttribute : ChainedFixtureSpecificationAttribute
     {
         public override IBuildFixtures FixtureBuilder { get; } =
@@ -11,7 +13,6 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
                 .Next(tests => new MyFixtureGeneratedTests2(tests.I));
     }
 
-    [MyProcessBuildingSpecification]
     public class MyFixtureGeneratedTests
     {
         public int I;
@@ -22,7 +23,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         }
 
         [SmokeTest]
-        public void Hej_test()
+        public void D()
         {
             I++;
             Assert.AreEqual(1, I);
@@ -62,7 +63,6 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         {
             I++;
             Assert.AreEqual(6, I);
-            //Assert.True(false);
         }
 
         [SmokeTest]
