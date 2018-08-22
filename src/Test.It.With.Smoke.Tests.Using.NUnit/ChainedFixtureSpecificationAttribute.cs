@@ -11,21 +11,21 @@ using Test.It.With.Smoke.Tests.Using.NUnit.Configuration;
 namespace Test.It.With.Smoke.Tests.Using.NUnit
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public abstract class ChainedFixtureSpecificationAttribute : NUnitAttribute, IFixtureBuilder
+    public class ChainedFixtureSpecificationAttribute : NUnitAttribute, IFixtureBuilder
     {
-        public abstract IBuildFixtures FixtureBuilder { get; }
-
         public IEnumerable<TestSuite> BuildFrom(ITypeInfo typeInfo)
         {
-            foreach (var testFixture in GetFixtures())
+            var fixtureBuilder = GetFixtureBuilder(typeInfo);
+            foreach (var testFixture in GetFixtures(fixtureBuilder.Build()))
             {
                 testFixture.ApplyAttributesToTest(testFixture.TypeInfo.Type.GetTypeInfo());
                 AddTestCasesToFixture(testFixture);
                 yield return testFixture;
             }
         }
-
+        
         private readonly ITestCaseBuilder _testBuilder = new DefaultTestCaseBuilder();
+
         private void AddTestCasesToFixture(TestSuite fixture)
         {
             var methods = fixture.TypeInfo.GetMethods(
@@ -41,10 +41,9 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
             }
         }
 
-        private IEnumerable<TestFixture> GetFixtures()
+        private static IEnumerable<TestFixture> GetFixtures(IFixtureIterator fixtureIterator)
         {
             ChainTestFixture previousFixture = null;
-            var fixtureIterator = FixtureBuilder.Build();
             while (fixtureIterator.Next())
             {
                 var fixture = fixtureIterator.Current.Type;
@@ -55,6 +54,29 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
 
                 yield return previousFixture;
             }
+        }
+
+        private static IBuildFixtures GetFixtureBuilder(ITypeInfo typeInfo)
+        {
+            var properties = typeInfo.Type.GetProperties(BindingFlags.Static | BindingFlags.Public);
+            if (properties.Any() == false)
+            {
+                throw new InvalidOperationException("Could not find any static public properties.");
+            }
+
+            properties = properties.Where(info => info.CanRead).ToArray();
+            if (properties.Any() == false)
+            {
+                throw new InvalidOperationException("Could not find any static public properties with a getter.");
+            }
+
+            var fixtureBuilderProperty = properties.First();
+            if (fixtureBuilderProperty.GetMethod.ReturnType != typeof(IBuildFixtures))
+            {
+                throw new InvalidOperationException($"The return type of property {fixtureBuilderProperty.Name} must be of type {typeof(IBuildFixtures)}.");
+            }
+
+            return (IBuildFixtures) fixtureBuilderProperty.GetValue(null, null);
         }
     }
 }

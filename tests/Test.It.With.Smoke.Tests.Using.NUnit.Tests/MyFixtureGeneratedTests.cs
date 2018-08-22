@@ -1,13 +1,12 @@
 ﻿using NUnit.Framework;
 using Test.It.With.Smoke.Tests.Using.NUnit.Configuration;
-using Test.It.With.Smoke.Tests.Using.NUnit.Tests;
 
 namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 {
-    [MyProcessBuildingSpecification]
-    public class MyProcessBuildingSpecificationAttribute : ChainedFixtureSpecificationAttribute
+    [ChainedFixtureSpecification]
+    public class MyProcessBuildingSpecificationAttribute
     {
-        public override IBuildFixtures FixtureBuilder { get; } =
+        public static IBuildFixtures FixtureBuilder =>
             ChainedFixtures<MyFixtureGeneratedTests>
                 .Start(() => new MyFixtureGeneratedTests())
                 .Next(tests => new MyFixtureGeneratedTests2(tests.I));
