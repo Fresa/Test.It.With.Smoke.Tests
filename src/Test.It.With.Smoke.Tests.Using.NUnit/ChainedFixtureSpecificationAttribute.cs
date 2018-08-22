@@ -19,6 +19,9 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
             foreach (var testFixture in GetFixtures(fixtureBuilder.Build()))
             {
                 testFixture.ApplyAttributesToTest(testFixture.TypeInfo.Type.GetTypeInfo());
+                // group by the chain building specification class
+                testFixture.Properties.Add(PropertyNames.Category, typeInfo.FullName);
+
                 AddTestCasesToFixture(testFixture);
                 yield return testFixture;
             }
