@@ -4,19 +4,19 @@ using Test.It.With.Smoke.Tests.Using.NUnit.Configuration;
 namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
 {
     [ChainedFixtureSpecification]
-    public class MyProcessBuildingSpecification
+    public class AnotherProcessBuildingSpecification
     {
         public static IBuildFixtures FixtureBuilder =>
-            ChainedFixtures<MyFixtureGeneratedTests>
-                .Start(() => new MyFixtureGeneratedTests())
+            ChainedFixtures<AnotherFixtureGeneratedTests>
+                .Start(() => new AnotherFixtureGeneratedTests())
                 .Next(tests => new MyFixtureGeneratedTests2(tests.I));
     }
 
-    public class MyFixtureGeneratedTests
+    public class AnotherFixtureGeneratedTests
     {
         public int I;
 
-        public MyFixtureGeneratedTests()
+        public AnotherFixtureGeneratedTests()
         {
             I = 0;
         }
@@ -90,30 +90,6 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit.Tests
         {
             I++;
             Assert.AreEqual(10, I);
-        }
-
-        [SmokeTest]
-        public void AC()
-        {
-            I++;
-            Assert.AreEqual(11, I);
-        }
-    }
-
-    public class MyFixtureGeneratedTests2
-    {
-        private int _i;
-
-        public MyFixtureGeneratedTests2(int i)
-        {
-            _i = i;
-        }
-
-        [SmokeTest]
-        public void H()
-        {
-            _i++;
-            Assert.AreEqual(12, _i);
         }
     }
 }
