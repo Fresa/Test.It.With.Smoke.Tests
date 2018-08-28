@@ -16,6 +16,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
         public IEnumerable<TestSuite> BuildFrom(ITypeInfo typeInfo)
         {
             var fixtureBuilder = GetFixtureBuilder(typeInfo);
+
             foreach (var testFixture in GetFixtures(fixtureBuilder.Build()))
             {
                 testFixture.ApplyAttributesToTest(testFixture.TypeInfo.Type.GetTypeInfo());
@@ -23,10 +24,15 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
                 testFixture.Properties.Add(PropertyNames.Category, typeInfo.FullName);
 
                 AddTestCasesToFixture(testFixture);
+
+                // Pre-pad with the chained fixture name in order to re-use specs in different chained fixtures
+                testFixture.FullName = (typeInfo.FullName + "." + testFixture.FullName).Replace(".", "_");
+                testFixture.Name = (typeInfo.Name + "." + testFixture.Name).Replace(".", "_");
+
                 yield return testFixture;
             }
         }
-        
+
         private readonly ITestCaseBuilder _testBuilder = new DefaultTestCaseBuilder();
 
         private void AddTestCasesToFixture(TestSuite fixture)
@@ -79,7 +85,7 @@ namespace Test.It.With.Smoke.Tests.Using.NUnit
                 throw new InvalidOperationException($"The return type of property {fixtureBuilderProperty.Name} must be of type {typeof(IBuildFixtures)}.");
             }
 
-            return (IBuildFixtures) fixtureBuilderProperty.GetValue(null, null);
+            return (IBuildFixtures)fixtureBuilderProperty.GetValue(null, null);
         }
     }
 }
